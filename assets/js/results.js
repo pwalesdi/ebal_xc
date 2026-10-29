@@ -35,15 +35,21 @@ start(async () => {
   document.title = `${year} · ${document.title}`;
 
   const root = document.getElementById("results");
-  if (asked !== null && Number(asked) !== year) {
-    root.append(el("p", { class: "notice" }, /^[0-9]{4}$/.test(asked)
-      ? `No results have been found for ${asked} yet. Showing ${year}.`
-      : `Showing the latest year, ${year}.`));
-  }
+  if (asked !== null && Number(asked) !== year) root.append(el("p", { class: "notice" }, notice(asked, year)));
   const sections = SECTIONS.map((s) => ({ ...s, rows: data[s.file].filter((r) => Number(r.year) === year) }));
   const videos = data[VIDEOS_FILE].filter((r) => Number(r.year) === year);
   root.append(meet(year, sections, videos));
 });
+
+// Why the year asked for isn't the one shown. A year in no_meet_years.csv had
+// no championship, so it gets its note instead of "No results have been found".
+function notice(asked, year) {
+  if (!/^[0-9]{4}$/.test(asked)) return `Showing the latest year, ${year}.`;
+  const note = noMeetNotes.get(Number(asked));
+  return note === undefined
+    ? `No results have been found for ${asked} yet. Showing ${year}.`
+    : `${asked}: ${note.replace(/\.$/, "")}. Showing ${year}.`;
+}
 
 function meet(year, sections, videos) {
   const rows = sections.flatMap((s) => s.rows);

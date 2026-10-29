@@ -33,7 +33,7 @@ function genderSection(gender, years) {
   const id = `${gender.key}-champions`;
   const rows = years.map(({ year, schools, hasResults }) => el("tr", {},
     el("th", { scope: "row" }, hasResults ? yearLink(year) : String(year)),
-    schools.length ? el("td", {}, champion(schools)) : el("td", { class: "missing" }, "Not yet found")));
+    schools.length ? el("td", {}, champion(schools)) : notFoundCell(year)));
   return el("section", { class: "gender", "aria-labelledby": id },
     el("h2", { id }, gender.label),
     table(id, [{ label: "Year" }, { label: "Champion" }], [el("tbody", {}, rows)]),
@@ -50,7 +50,8 @@ function champion(schools) {
 }
 
 // Titles by school, counted only from years with a known champion, then the
-// years left out of the count.
+// years left out of the count. A year with no championship isn't one of them:
+// it gets a line of its own.
 function titles(gender, years) {
   const id = `${gender.key}-titles`;
   const counts = new Map();
@@ -63,7 +64,9 @@ function titles(gender, years) {
     }
   }
   const sorted = [...counts].sort(([a, x], [b, y]) => y.titles - x.titles || a.localeCompare(b));
-  const unknown = years.filter((y) => !y.schools.length).map((y) => y.year).sort((a, b) => a - b);
+  const empty = years.filter((y) => !y.schools.length).map((y) => y.year).sort((a, b) => a - b);
+  const unknown = empty.filter((year) => !noMeetNotes.has(year));
+  const noMeet = empty.filter((year) => noMeetNotes.has(year));
   const rows = sorted.map(([school, count]) => el("tr", {},
     el("th", { scope: "row" }, schoolLabel(school)),
     el("td", { class: "num" }, count.shared ? `${count.titles} (${count.shared} shared)` : String(count.titles))));
@@ -73,7 +76,16 @@ function titles(gender, years) {
     table(id, [{ label: "School" }, { label: "Titles", class: "num" }], [el("tbody", {}, rows)]),
     el("p", { class: "not-counted" }, unknown.length
       ? `Not counted: no champion has been found yet for ${listText(unknown.map(String))}.`
-      : "Every year has a known champion."));
+      : "Every year has a known champion."),
+    noMeet.map((year) => el("p", { class: "note" }, noMeetLine(year, noMeetNotes.get(year)))));
+}
+
+// 2020 with "No championship (COVID-19)" -> "No championship in 2020 (COVID-19)."
+// A note worded any other way -> "2020: <note>."
+function noMeetLine(year, note) {
+  const text = note.replace(/\.$/, "");
+  const match = /^No championship\b(.*)$/.exec(text);
+  return match ? `No championship in ${year}${match[1]}.` : `${year}: ${text}.`;
 }
 
 // ["A", "B", "C"] -> "A, B and C".

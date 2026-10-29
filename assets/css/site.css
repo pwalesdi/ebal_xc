@@ -201,6 +201,12 @@ h3 {
   font-style: italic;
 }
 
+/* A year with no championship. Its note is a fact, not missing data, so it
+   isn't in italics. */
+.no-meet {
+  color: var(--ink-muted);
+}
+
 .label,
 .distance {
   color: var(--ink-muted);

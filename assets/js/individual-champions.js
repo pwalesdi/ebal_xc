@@ -25,7 +25,7 @@ function genderSection(gender, rows, lastYear) {
     if (!found) {
       body.push(el("tr", {},
         el("th", { scope: "row" }, String(year)),
-        el("td", { class: "missing", colspan: columns.length - 1 }, "Not yet found")));
+        notFoundCell(year, { colspan: columns.length - 1 })));
       continue;
     }
     for (const r of found) {

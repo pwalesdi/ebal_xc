@@ -33,7 +33,7 @@ Every page sits at the repo root and shares the same header and footer.
 - `assets/css/site.css`: the one stylesheet.
 - `assets/img/schools/`: one logo per school, named by display name (`amador-valley.jpg`, `california.png`, ...). Pages show each at 20px in the same square, with `alt=""`, immediately before the school name. Metadata is stripped losslessly: JPEG with `jpegtran -copy none -optimize`; PNG by dropping the ancillary chunks (keeping `tRNS` if present), then checking the decoded pixels match the source.
 - `assets/js/csv.js`: the one CSV parser. `parseCSV(text)` returns one object per row, keyed by the header row, with values exactly as written.
-- `assets/js/common.js`: shared by every page. Loads CSVs and the lookup tables (schools, school logos, venues), builds elements, including each school's logo and name and the list of videos, and marks the current page in the header.
+- `assets/js/common.js`: shared by every page. Loads CSVs and the lookup tables (schools, school logos, venues, no-meet years), builds elements, including each school's logo and name and the list of videos, and marks the current page in the header.
 - `assets/js/home.js`, `team-champions.js`, `results.js`, `individual-champions.js`, `venues.js`, `videos.js`: one render file per page. Settings that may change (the Varsity label rule, All-EBAL place ranges, venue order, list lengths per venue) sit at the top of each.
 - `assets/data/`: the CSVs.
   - `ebal_xc_girls_team_results.csv`, `ebal_xc_boys_team_results.csv`: team standings at each year's championship meet.
@@ -42,6 +42,7 @@ Every page sits at the repo root and shares the same header and footer.
   - `schools.csv`: `source_name,display_name`. Every school string in the data, with the short league name the pages show. A new school string needs a row here.
   - `school_logos.csv`: `display_name,athletic_net_id,logo_file`. One row per display name in schools.csv. Logos are matched by athletic.net ID, never by name. A blank `logo_file` means no logo, and the pages leave an empty space of the same size.
   - `venues.csv`: `source_venue,venue_id,venue_name`. Every venue string, with the venue it belongs to. A new venue string needs a row here.
+  - `no_meet_years.csv`: `year,note`. Years with no championship, such as 2020 (COVID-19). These aren't missing data: where a page would show "Not yet found" for such a year, it shows the note instead. The year is left out of the "Not counted" lists under titles by school and gets its own line there. `results.html?year=2020` shows the note in place of "No results have been found". The year stays out of the year list.
   - `upcoming_meet.csv`: `field,value`. The coming meet's title, date, location, venue_id (as in venues.csv), host (a school, shown through schools.csv with its logo), meet director, first race and note. Updated each year.
   - `upcoming_schedule.csv`: `race,time`. The coming meet's races, in order. A race whose name starts with "Varsity" gets a Varsity label.
   - `videos.csv`: `year,creator,creator_role,url`. Race videos, shown as written, each a YouTube link.

@@ -35,13 +35,16 @@ async function loadAll(names) {
 let schoolNames = new Map();
 let logoFiles = new Map();
 let venuesBySource = new Map();
+let noMeetNotes = new Map();
 
 async function loadLookups() {
-  const { "schools.csv": schools, "school_logos.csv": logos, "venues.csv": venues } =
-    await loadAll(["schools.csv", "school_logos.csv", "venues.csv"]);
+  const {
+    "schools.csv": schools, "school_logos.csv": logos, "venues.csv": venues, "no_meet_years.csv": noMeetYears,
+  } = await loadAll(["schools.csv", "school_logos.csv", "venues.csv", "no_meet_years.csv"]);
   schoolNames = new Map(schools.map((r) => [r.source_name, r.display_name]));
   logoFiles = new Map(logos.filter((r) => r.logo_file !== "").map((r) => [r.display_name, r.logo_file]));
   venuesBySource = new Map(venues.map((r) => [r.source_venue, { id: r.venue_id, name: r.venue_name }]));
+  noMeetNotes = new Map(noMeetYears.map((r) => [Number(r.year), r.note]));
 }
 
 // The name a page shows for a school string from the data. A string missing
@@ -70,6 +73,16 @@ function venueOf(source) {
 // written if venues.csv doesn't map it, or "" if it's empty.
 function venueName(source) {
   return venueOf(source)?.name ?? source;
+}
+
+// The cell for a year with nothing to show. A year in no_meet_years.csv had no
+// championship, so it shows its note, which isn't missing data. Any other year
+// shows "Not yet found".
+function notFoundCell(year, attrs = {}) {
+  const note = noMeetNotes.get(year);
+  return note === undefined
+    ? el("td", { class: "missing", ...attrs }, "Not yet found")
+    : el("td", { class: "no-meet", ...attrs }, note);
 }
 
 // el("td", { class: "num" }, "21") builds an element. Attributes that are null,
