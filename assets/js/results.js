@@ -1,5 +1,6 @@
 // Results by Year (results.html). One year's championship meet, picked with
-// ?year= so each year can be linked. Defaults to the latest year.
+// ?year= so each year can be linked. Defaults to the latest year. The year's
+// race videos, if any, follow the results.
 
 // All-EBAL teams by place in the top 21. Each label covers places from–to.
 const ALL_EBAL = {
@@ -21,7 +22,7 @@ const SECTIONS = GENDERS.flatMap((gender) => [
 ]);
 
 start(async () => {
-  const data = await loadAll(SECTIONS.map((s) => s.file));
+  const data = await loadAll([...SECTIONS.map((s) => s.file), VIDEOS_FILE]);
   const years = [...new Set(SECTIONS.flatMap((s) => data[s.file].map((r) => Number(r.year))))]
     .filter(Number.isFinite)
     .sort((a, b) => b - a);
@@ -40,18 +41,16 @@ start(async () => {
       : `Showing the latest year, ${year}.`));
   }
   const sections = SECTIONS.map((s) => ({ ...s, rows: data[s.file].filter((r) => Number(r.year) === year) }));
-  root.append(meet(year, sections));
+  const videos = data[VIDEOS_FILE].filter((r) => Number(r.year) === year);
+  root.append(meet(year, sections, videos));
 });
 
-function meet(year, sections) {
+function meet(year, sections, videos) {
   const rows = sections.flatMap((s) => s.rows);
-  // Each distinct value as written, joined if girls and boys ever differ.
-  const values = (column, show = (v) => v) =>
-    [...new Set(rows.map((r) => r[column]).filter((v) => v !== "").map(show))].join(" / ");
   const facts = [
-    values("meet_date") || "Date not recorded",
-    values("venue", venueName) || "Venue not recorded",
-    values("distance") || "Distance not recorded",
+    distinctValues(rows, "meet_date") || "Date not recorded",
+    distinctValues(rows, "venue", venueName) || "Venue not recorded",
+    distinctValues(rows, "distance") || "Distance not recorded",
   ];
   return el("article", { class: "meet", "aria-labelledby": "meet-heading" },
     el("h2", { id: "meet-heading" }, `${year} championship meet`),
@@ -59,7 +58,10 @@ function meet(year, sections) {
     sources(sections),
     sections.map((s) => el("section", { "aria-labelledby": s.id },
       el("h3", { id: s.id }, s.title),
-      s.rows.length ? s.render(s.id, s.rows) : el("p", { class: "missing" }, s.missing))));
+      s.rows.length ? s.render(s.id, s.rows) : el("p", { class: "missing" }, s.missing))),
+    videos.length ? el("section", { "aria-labelledby": "videos" },
+      el("h3", { id: "videos" }, "Videos"),
+      videoList(videos)) : null);
 }
 
 // One link per distinct source_url. Each link names its gender when the year
@@ -79,10 +81,6 @@ function sources(sections) {
     return el("a", { href: url }, urls.size > 1 ? `${label}: ${[...genders].join(" and ")}` : label);
   });
   return el("p", { class: "sources" }, links.flatMap((link, i) => [i ? separator() : null, link]));
-}
-
-function separator() {
-  return el("span", { class: "sep", "aria-hidden": "true" }, " · ");
 }
 
 function teamTable(id, rows) {

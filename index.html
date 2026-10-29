@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Team Champions · EBAL Cross Country Championship History</title>
-  <meta name="description" content="EBAL cross country girls and boys team champions for every year from 1977, with titles by school.">
+  <title>EBAL Cross Country Championship History</title>
+  <meta name="description" content="The coming EBAL cross country championship meet: date, location, race schedule and defending champions, with championship history back to 1977.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/css/site.css">
   <script src="assets/js/csv.js" defer></script>
   <script src="assets/js/common.js" defer></script>
-  <script src="assets/js/team-champions.js" defer></script>
+  <script src="assets/js/home.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -18,26 +18,27 @@
       <a class="site-title" href="index.html">EBAL Cross Country Championship History</a>
       <nav class="site-nav" aria-label="Main">
         <ul>
-          <li><a href="index.html">Champions</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="team-champions.html">Team Champions</a></li>
           <li><a href="results.html">Results by Year</a></li>
           <li><a href="champions.html">Individual Champions</a></li>
           <li><a href="venues.html">Fastest by Venue</a></li>
+          <li><a href="videos.html">Videos</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
   <main id="main" class="wrap">
-    <h1>Team Champions</h1>
-    <p class="lede">Girls and boys team champions for every year from 1977. For a year with results on this site, the champion is the first-place team at that year's championship meet. Other years come from the league's list of past champions.</p>
-    <noscript><p class="status error">This page needs JavaScript to show the champions.</p></noscript>
+    <h1 data-meet-title>EBAL Cross Country Championships</h1>
+    <noscript><p class="status error">This page needs JavaScript to show the meet information.</p></noscript>
     <p class="status" role="status" data-status></p>
-    <div class="pair" id="champions"></div>
+    <div id="home"></div>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
-      <p>East Bay Athletic League cross country championship history, from published results and the league's list of past champions. Historical results only. Athlete names and times appear as printed in the source results.</p>
+      <p>East Bay Athletic League cross country championship history, from published results and the league's list of past champions. Championship information, historical results and race videos. Athlete names and times appear as printed in the source results.</p>
     </div>
   </footer>
 </body>

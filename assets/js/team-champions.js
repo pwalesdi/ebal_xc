@@ -1,6 +1,6 @@
-// Team Champions (index.html). For each gender, every year from FIRST_YEAR,
-// newest first: the first-place team where the year has team results, the
-// league's champion list otherwise. Then titles by school.
+// Team Champions (team-champions.html). For each gender, every year from
+// FIRST_YEAR, newest first: the first-place team where the year has team
+// results, the league's champion list otherwise. Then titles by school.
 
 const RESULTS_FILE = (gender) => `ebal_xc_${gender.key}_team_results.csv`;
 const LIST_FILE = (gender) => `ebal_xc_${gender.key}_team_champions.csv`;

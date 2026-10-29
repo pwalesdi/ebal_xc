@@ -103,12 +103,16 @@ a:hover {
   text-decoration: none;
 }
 
+/* On a phone the six links wrap to two rows, never sideways: at 390px wide,
+   14px text with 16px gaps fits three links on each row, with room for the
+   current page's link in bold. */
 .site-nav ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1.25rem;
+  gap: 0 1rem;
   margin: 0;
   padding: 0;
+  font-size: 0.875rem;
   list-style: none;
 }
 
@@ -329,6 +333,51 @@ tr.group th {
   margin-top: 0;
 }
 
+/* Home */
+
+/* Labelled details: each label, with its value beside it. */
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.375rem 1rem;
+  margin: 0;
+}
+
+.facts dt {
+  grid-column: 1;
+  color: var(--ink-muted);
+}
+
+.facts dd {
+  grid-column: 2;
+  margin: 0;
+  font-weight: 600;
+}
+
+.schedule {
+  max-width: 32rem;
+}
+
+/* A varsity race has a Varsity label. Bold and shading are extra cues. */
+.schedule .varsity {
+  background: var(--surface-alt);
+}
+
+.schedule .varsity td {
+  font-weight: 700;
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 /* Results by Year */
 
 .year-picker {
@@ -387,7 +436,8 @@ button:hover {
 
 /* Fastest by Venue */
 
-.jump ul {
+.jump ul,
+.years {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.25rem;
@@ -413,7 +463,44 @@ button:hover {
   margin-top: 1.25rem;
 }
 
+/* Race Videos */
+
+.contact {
+  max-width: 42rem;
+}
+
+.video-year > h2 {
+  margin-bottom: 0.25rem;
+}
+
+.video-year > .meta {
+  margin: 0;
+}
+
+.videos {
+  max-width: 42rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.videos li {
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.videos .by {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
 @media (min-width: 60em) {
+  .site-nav ul {
+    gap: 0 1.25rem;
+    font-size: 1rem;
+  }
+
   .pair {
     grid-template-columns: 1fr 1fr;
   }

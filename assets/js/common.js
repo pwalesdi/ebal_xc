@@ -1,4 +1,4 @@
-// Shared by every page: loading the CSVs and the two lookup tables, building
+// Shared by every page: loading the CSVs and the lookup tables, building
 // elements, and marking the current page in the header. Load after csv.js.
 
 const DATA_DIR = "assets/data/";
@@ -15,6 +15,9 @@ const GENDERS = [
   { key: "girls", label: "Girls" },
   { key: "boys", label: "Boys" },
 ];
+
+// Race videos, listed on Race Videos and under each year's results.
+const VIDEOS_FILE = "videos.csv";
 
 // Fetches one CSV from assets/data/ and parses it.
 async function loadCSV(name) {
@@ -100,6 +103,25 @@ function yearLink(year) {
   return el("a", { href: `results.html?year=${year}` }, String(year));
 }
 
+// The distinct values of one column, as written or passed through show, joined
+// with " / " if girls and boys ever differ. "" if every value is empty.
+function distinctValues(rows, column, show = (v) => v) {
+  return [...new Set(rows.map((r) => r[column]).filter((v) => v !== "").map(show))].join(" / ");
+}
+
+// The dot between items on one line. Screen readers skip it.
+function separator() {
+  return el("span", { class: "sep", "aria-hidden": "true" }, " · ");
+}
+
+// Race videos, in the order given: a plain link to YouTube, then who made the
+// video. Nothing is embedded and nothing is loaded from YouTube.
+function videoList(rows) {
+  return el("ul", { class: "videos" }, rows.map((r) => el("li", {},
+    el("a", { href: r.url }, "Watch on YouTube"),
+    el("span", { class: "by" }, [r.creator, r.creator_role].filter((v) => v !== "").join(", ")))));
+}
+
 // Rows grouped by year: Map(year number -> rows).
 function byYear(rows) {
   const years = new Map();
@@ -135,19 +157,22 @@ function markCurrentPage() {
 
 // Loads the lookup tables, then runs the page's render function. Shows a
 // loading message meanwhile, then removes it, or replaces it with what went wrong.
+// The page is built after it loads, too late for the browser to follow a link
+// to an id on it (venues.html#newhall), so that's done here once it's built.
 async function start(render) {
   markCurrentPage();
   const status = document.querySelector("[data-status]");
-  status.textContent = "Loading results…";
+  status.textContent = "Loading…";
   try {
     await loadLookups();
     await render();
     status.remove();
+    if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
   } catch (error) {
     console.error(error);
     status.textContent = location.protocol === "file:"
-      ? "The results can't load from a file. Serve the folder over HTTP, for example with python3 -m http.server."
-      : "The results couldn't be loaded. Please try again later.";
+      ? "This page can't load its data from a file. Serve the folder over HTTP, for example with python3 -m http.server."
+      : "This page's data couldn't be loaded. Please try again later.";
     status.classList.add("error");
   }
 }

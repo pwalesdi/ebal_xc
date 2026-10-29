@@ -24,10 +24,11 @@ const TOP21_FILE = (gender) => `ebal_xc_${gender.key}_top21.csv`;
 start(async () => {
   const data = await loadAll(GENDERS.map(TOP21_FILE));
   const venues = venueList(GENDERS.flatMap((g) => data[TOP21_FILE(g)]));
+  // Each venue's section has its venue_id as an id, so venues.html#newhall links to it.
   document.getElementById("venues").append(
     el("nav", { class: "jump", "aria-label": "Venues on this page" },
-      el("ul", {}, venues.map((v) => el("li", {}, el("a", { href: `#venue-${v.id}` }, v.name))))),
-    ...venues.map((venue) => el("section", { class: "venue", "aria-labelledby": `venue-${venue.id}` },
+      el("ul", {}, venues.map((v) => el("li", {}, el("a", { href: `#${v.id}` }, v.name))))),
+    ...venues.map((venue) => el("section", { class: "venue", id: venue.id, "aria-labelledby": `venue-${venue.id}` },
       el("h2", { id: `venue-${venue.id}` }, venue.name),
       el("p", {}, "Built from the top 21 finishers each year."),
       el("p", { class: "meta" }, `Years: ${yearSpans(venue.years)}`),
