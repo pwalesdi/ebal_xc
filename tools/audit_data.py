@@ -3,9 +3,14 @@
 
 Prints a plain-text report, sections a to j, and changes nothing:
 
-    python3 tools/audit_data.py
+    python3 tools/audit_data.py [path/to/ebal_xc_coverage_log.csv]
+
+The coverage log is kept outside the repo. Without its path, the report leaves
+out the log's header check, its columns in the coverage table and its fields in
+the Monta Vista search.
 """
 
+import argparse
 import codecs
 import csv
 import io
@@ -57,9 +62,8 @@ SCORE_RE = re.compile(r"([0-9]+)\*?")  # some sources print a tied score as 139*
 TIME_RE = re.compile(r"[0-9]+:[0-5][0-9](\.[0-9]{1,2})?")
 
 
-def load(name):
+def load(path):
     """Reads one CSV into a dict, or returns None if the file is missing."""
-    path = DATA / name
     if not path.exists():
         return None
     raw = path.read_bytes()
@@ -78,7 +82,7 @@ def load(name):
         row["_line"], row["_fields"] = line, fields
         rows.append(row)
     return {
-        "name": name,
+        "name": path.name,
         "header": header,
         "rows": rows,
         "bom": raw.startswith(codecs.BOM_UTF8),
@@ -172,6 +176,8 @@ def header_check(tables):
         "printed below so it can be checked against the intended schema.", hang=False)
     present = [t for t in tables.values() if t]
     for name, expected in EXPECTED.items():
+        if name not in tables:
+            continue
         table = tables[name]
         if table is None:
             print(f"   {name}: MISSING")
@@ -225,20 +231,24 @@ def coverage_table(tables):
     log = defaultdict(list)
     for row in rows_of(tables, LOG):
         log[(year_of(row), row.get("gender", ""))].append(row.get("status", ""))
+    has_log = LOG in tables
 
     print(f"b. Coverage, {first}-{last}")
     print("   team: Y/N and number of teams. top21: number of places present.")
-    print("   log: coverage_log status, or - where the log has no row.")
+    if has_log:
+        print("   log: coverage_log status, or - where the log has no row.")
     print()
-    line = "   {:<4}  {:<10}  {:<11}  {:<9}  {:<10}  {:<10}  {}"
-    print(line.format("year", "girls team", "girls top21", "boys team", "boys top21", "girls log", "boys log"))
+    line = "   {:<4}  {:<10}  {:<11}  {:<9}  " + ("{:<10}  {:<10}  {}" if has_log else "{}")
+    headings = ["year", "girls team", "girls top21", "boys team", "boys top21"]
+    print(line.format(*headings + (["girls log", "boys log"] if has_log else [])))
     for year in range(first, last + 1):
         cells = []
         for g in GENDERS:
             count = len(teams[g].get(year, []))
             cells.append(f"Y {count}" if count else "N")
             cells.append(len({number(r.get("place", "")) for r in top[g].get(year, [])} - {None}))
-        cells += ["/".join(log.get((year, g), [])) or "-" for g in GENDERS]
+        if has_log:
+            cells += ["/".join(log.get((year, g), [])) or "-" for g in GENDERS]
         print(line.format(year, *cells))
 
 
@@ -435,9 +445,24 @@ def source_url_report(tables):
 
 
 def main():
-    tables = {name: load(name) for name in EXPECTED}
+    parser = argparse.ArgumentParser(description="Read-only audit of the CSVs in assets/data/.")
+    parser.add_argument("coverage_log", nargs="?", type=Path,
+                        help=f"path to {LOG}, which is kept outside the repo. "
+                             "Without it, the report leaves out the log's parts.")
+    args = parser.parse_args()
+    if args.coverage_log and not args.coverage_log.is_file():
+        parser.error(f"coverage log not found: {args.coverage_log}")
+
+    tables = {}
+    for name in EXPECTED:
+        if name != LOG:
+            tables[name] = load(DATA / name)
+        elif args.coverage_log:
+            tables[name] = load(args.coverage_log)
     print("EBAL XC data audit (read-only)")
     print(f"Data folder: {DATA.relative_to(ROOT)}")
+    print("Coverage log: " + (str(args.coverage_log) if args.coverage_log
+                              else "not given, so the parts of the report that use it are skipped"))
     for section in (header_check, coverage_table, top21_check, team_check, champion_check,
                     time_check, venue_report, distance_report, monta_vista_check, source_url_report):
         print()
