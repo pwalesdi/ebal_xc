@@ -139,10 +139,18 @@ a:hover {
   font-size: 0.875rem;
 }
 
+.site-footer .wrap {
+  padding-top: 1.25rem;
+  padding-bottom: 2rem;
+}
+
 .site-footer p {
   max-width: 40rem;
   margin: 0;
-  padding: 1.25rem 0 2rem;
+}
+
+.site-footer p + p {
+  margin-top: 0.5rem;
 }
 
 /* Page text */

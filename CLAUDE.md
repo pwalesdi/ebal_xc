@@ -1,6 +1,6 @@
 # EBAL cross country championship history
 
-A static site of EBAL cross country championship history for girls and boys, covering team results, top-21 individuals and team champions by year. It is plain HTML, CSS and JS, served as is.
+A static site for the EBAL cross country championships, girls and boys. The home page covers the upcoming meet: details, race schedule and defending champions. The history pages cover team champions, results by year with team scores and the top 21 individuals, individual champions and the fastest times at each venue. A videos page links to race videos by year. It is plain HTML, CSS and JS, served as is.
 
 ## Rules
 
@@ -29,7 +29,7 @@ Every page sits at the repo root and shares the same header and footer.
 - `results.html`: Results by Year. `results.html?year=2025` links to one year. A year with videos in videos.csv lists them after its results.
 - `champions.html`: Individual Champions, from place 1 in each year's top 21, back to the first year with results (2008). One line under each table covers the years before.
 - `venues.html`: Fastest by Venue. Each athlete's best time at each venue, with a list length set per venue. Each venue's section has its venue_id as an anchor (`venues.html#newhall`).
-- `videos.html`: Race Videos. Every video in videos.csv, grouped by year, newest first. Plain links to YouTube: no embedded players, nothing loaded from YouTube. The contact line shows "[contact TBD]" until contact details are supplied.
+- `videos.html`: Race Videos. Every video in videos.csv, grouped by year, newest first. Plain links to YouTube: no embedded players, nothing loaded from YouTube. The contact line gives the email address for sending videos.
 - `assets/css/site.css`: the one stylesheet.
 - `assets/img/schools/`: one logo per school, named by display name (`amador-valley.jpg`, `california.png`, ...). Pages show each at 20px in the same square, with `alt=""`, immediately before the school name. Metadata is stripped losslessly: JPEG with `jpegtran -copy none -optimize`; PNG by dropping the ancillary chunks (keeping `tRNS` if present), then checking the decoded pixels match the source.
 - `assets/js/csv.js`: the one CSV parser. `parseCSV(text)` returns one object per row, keyed by the header row, with values exactly as written.
