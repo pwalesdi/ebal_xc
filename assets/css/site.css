@@ -212,18 +212,19 @@ h3 {
   margin: 0.5rem 0 0;
 }
 
-/* Tables */
+/* Tables. On a phone, table text is 14px with 4px cell padding, so the widest
+   tables (top 21, venue lists) fit at 390px with a logo beside every school. */
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
 }
 
 th,
 td {
-  padding: 0.5rem 0.375rem;
+  padding: 0.5rem 0.25rem;
   border-bottom: 1px solid var(--rule);
   text-align: left;
   vertical-align: top;
@@ -237,7 +238,7 @@ td:first-child {
 thead th {
   border-bottom: 2px solid var(--rule-strong);
   color: var(--ink-muted);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -268,6 +269,29 @@ tbody th:not(:first-child) {
 .time .distance {
   display: block;
   white-space: normal;
+}
+
+/* A school's logo, then its name. Every logo sits in the same 20px square,
+   centred on the name's first line, so no school's logo is bigger than another's
+   and names line up whether or not a school has a logo. */
+.school {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.logo {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: calc((1.5em - 20px) / 2);
+  object-fit: contain;
+}
+
+.shared {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 tr.group th {
@@ -394,8 +418,16 @@ button:hover {
     grid-template-columns: 1fr 1fr;
   }
 
+  table {
+    font-size: 0.9375rem;
+  }
+
   th,
   td {
     padding: 0.5rem 0.75rem;
+  }
+
+  thead th {
+    font-size: 0.8125rem;
   }
 }

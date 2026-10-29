@@ -1,5 +1,6 @@
-// Individual Champions (champions.html). For each gender, every year from
-// FIRST_YEAR, newest first: place 1 in that year's top 21.
+// Individual Champions (champions.html). For each gender, place 1 in each
+// year's top 21, newest first, back to the first year with results. One line
+// under the table covers the years before that.
 
 const TOP21_FILE = (gender) => `ebal_xc_${gender.key}_top21.csv`;
 
@@ -17,8 +18,9 @@ function genderSection(gender, rows, lastYear) {
     { label: "Time", class: "num" }, { label: "Venue" },
   ];
   const winners = byYear(rows.filter((r) => Number(r.place) === 1));
+  const firstYear = winners.size ? Math.min(...winners.keys()) : lastYear + 1;
   const body = [];
-  for (let year = lastYear; year >= FIRST_YEAR; year--) {
+  for (let year = lastYear; year >= firstYear; year--) {
     const found = winners.get(year);
     if (!found) {
       body.push(el("tr", {},
@@ -30,12 +32,13 @@ function genderSection(gender, rows, lastYear) {
       body.push(el("tr", {},
         el("th", { scope: "row" }, yearLink(year)),
         el("td", {}, r.athlete),
-        el("td", {}, schoolName(r.school)),
+        el("td", {}, schoolLabel(schoolName(r.school))),
         el("td", { class: "num time" }, r.time),
         el("td", {}, venueName(r.venue) || "Not recorded")));
     }
   }
   return el("section", { class: "gender", "aria-labelledby": id },
     el("h2", { id }, gender.label),
-    scrollable(id, table(id, columns, [el("tbody", {}, body)])));
+    scrollable(id, table(id, columns, [el("tbody", {}, body)])),
+    firstYear > FIRST_YEAR ? el("p", { class: "note" }, `Individual champions before ${firstYear} not yet found.`) : null);
 }

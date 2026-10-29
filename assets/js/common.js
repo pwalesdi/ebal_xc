@@ -6,6 +6,11 @@ const DATA_DIR = "assets/data/";
 // The first season in the league's champion list.
 const FIRST_YEAR = 1977;
 
+// School logos. Every logo is drawn in the same square, so no school's logo is
+// bigger than another's.
+const LOGO_DIR = "assets/img/schools/";
+const LOGO_SIZE = 20;
+
 const GENDERS = [
   { key: "girls", label: "Girls" },
   { key: "boys", label: "Boys" },
@@ -25,11 +30,14 @@ async function loadAll(names) {
 }
 
 let schoolNames = new Map();
+let logoFiles = new Map();
 let venuesBySource = new Map();
 
 async function loadLookups() {
-  const { "schools.csv": schools, "venues.csv": venues } = await loadAll(["schools.csv", "venues.csv"]);
+  const { "schools.csv": schools, "school_logos.csv": logos, "venues.csv": venues } =
+    await loadAll(["schools.csv", "school_logos.csv", "venues.csv"]);
   schoolNames = new Map(schools.map((r) => [r.source_name, r.display_name]));
+  logoFiles = new Map(logos.filter((r) => r.logo_file !== "").map((r) => [r.display_name, r.logo_file]));
   venuesBySource = new Map(venues.map((r) => [r.source_venue, { id: r.venue_id, name: r.venue_name }]));
 }
 
@@ -37,6 +45,17 @@ async function loadLookups() {
 // from schools.csv is shown as written.
 function schoolName(source) {
   return schoolNames.get(source) ?? source;
+}
+
+// A school's display name with its logo immediately before it. The logo's alt
+// is empty because the name is right beside it. A school with no logo gets an
+// empty space of the same size, so names still line up.
+function schoolLabel(name) {
+  const file = logoFiles.get(name);
+  const logo = file
+    ? el("img", { class: "logo", src: LOGO_DIR + file, alt: "", width: LOGO_SIZE, height: LOGO_SIZE })
+    : el("span", { class: "logo" });
+  return el("span", { class: "school" }, logo, el("span", {}, name));
 }
 
 // {id, name} for a venue string from the data, or null if venues.csv doesn't map it.

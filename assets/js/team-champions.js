@@ -33,13 +33,20 @@ function genderSection(gender, years) {
   const id = `${gender.key}-champions`;
   const rows = years.map(({ year, schools, hasResults }) => el("tr", {},
     el("th", { scope: "row" }, hasResults ? yearLink(year) : String(year)),
-    schools.length
-      ? el("td", {}, schools.length > 1 ? [listText(schools), " ", el("span", { class: "label" }, "(shared)")] : schools[0])
-      : el("td", { class: "missing" }, "Not yet found")));
+    schools.length ? el("td", {}, champion(schools)) : el("td", { class: "missing" }, "Not yet found")));
   return el("section", { class: "gender", "aria-labelledby": id },
     el("h2", { id }, gender.label),
     table(id, [{ label: "Year" }, { label: "Champion" }], [el("tbody", {}, rows)]),
     titles(gender, years));
+}
+
+// One school, or each school of a shared title on its own line, then "(shared)".
+function champion(schools) {
+  if (schools.length === 1) return schoolLabel(schools[0]);
+  return [
+    el("ul", { class: "shared" }, schools.map((school) => el("li", {}, schoolLabel(school)))),
+    el("span", { class: "label" }, "(shared)"),
+  ];
 }
 
 // Titles by school, counted only from years with a known champion, then the
@@ -58,7 +65,7 @@ function titles(gender, years) {
   const sorted = [...counts].sort(([a, x], [b, y]) => y.titles - x.titles || a.localeCompare(b));
   const unknown = years.filter((y) => !y.schools.length).map((y) => y.year).sort((a, b) => a - b);
   const rows = sorted.map(([school, count]) => el("tr", {},
-    el("th", { scope: "row" }, school),
+    el("th", { scope: "row" }, schoolLabel(school)),
     el("td", { class: "num" }, count.shared ? `${count.titles} (${count.shared} shared)` : String(count.titles))));
   return el("div", { class: "titles" },
     el("h3", { id }, `${gender.label} titles by school`),

@@ -72,7 +72,7 @@ function fastestList(venue, gender, rows) {
     el("tr", {},
       el("td", { class: "num" }, String(rank)),
       el("th", { scope: "row" }, row.athlete),
-      el("td", {}, school),
+      el("td", {}, schoolLabel(school)),
       el("td", { class: "num time" }, row.time, distanceNote(row.distance)),
       el("td", {}, yearLink(row.year)))));
   return el("section", { "aria-labelledby": id },

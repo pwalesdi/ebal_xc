@@ -89,7 +89,7 @@ function teamTable(id, rows) {
   const sorted = [...rows].sort((a, b) => Number(a.team_place) - Number(b.team_place));
   const body = el("tbody", {}, sorted.map((r) => el("tr", {},
     el("td", { class: "num" }, r.team_place),
-    el("th", { scope: "row" }, schoolName(r.school)),
+    el("th", { scope: "row" }, schoolLabel(schoolName(r.school))),
     el("td", { class: "num" }, r.team_score === "" ? "Not recorded" : r.team_score))));
   const tied = rows.some((r) => r.team_score.endsWith("*"));
   return [
@@ -118,7 +118,7 @@ function top21Table(id, rows) {
       el("td", { class: "num" }, r.place),
       el("th", { scope: "row" }, r.athlete),
       el("td", {}, r.grade),
-      el("td", {}, schoolName(r.school)),
+      el("td", {}, schoolLabel(schoolName(r.school))),
       el("td", { class: "num time" }, r.time)))));
   return scrollable(id, table(id, columns, bodies));
 }
