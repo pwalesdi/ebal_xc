@@ -5,8 +5,15 @@
 // the data follows, most recent first.
 const VENUE_ORDER = ["newhall", "hayward", "shadow-cliffs", "oak-hill"];
 
-// Places shown in each list. Athletes tied on the last place shown are all kept.
-const LIST_LENGTH = 25;
+// Places shown in each list, by venue_id, the same for girls and boys at a
+// venue. Athletes tied on the last place shown are all kept. A venue missing
+// here gets the longest length.
+const LIST_LENGTHS = {
+  "newhall": 25,
+  "shadow-cliffs": 25,
+  "oak-hill": 15,
+  "hayward": 10,
+};
 
 // Marks at any other recorded distance get an inline note with the distance as
 // written. Years with no recorded distance are listed under the venue heading.
@@ -63,12 +70,13 @@ function fastestList(venue, gender, rows) {
   list.forEach((entry, i) => {
     entry.rank = i && entry.time === list[i - 1].time ? list[i - 1].rank : i + 1;
   });
+  const length = LIST_LENGTHS[venue.id] ?? Math.max(...Object.values(LIST_LENGTHS));
 
   const columns = [
     { label: "Rank", class: "num" }, { label: "Athlete" }, { label: "School" },
     { label: "Time", class: "num" }, { label: "Year" },
   ];
-  const body = el("tbody", {}, list.filter((entry) => entry.rank <= LIST_LENGTH).map(({ rank, row, school }) =>
+  const body = el("tbody", {}, list.filter((entry) => entry.rank <= length).map(({ rank, row, school }) =>
     el("tr", {},
       el("td", { class: "num" }, String(rank)),
       el("th", { scope: "row" }, row.athlete),

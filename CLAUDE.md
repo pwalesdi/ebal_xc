@@ -27,12 +27,12 @@ Every page sits at the repo root and shares the same header and footer.
 - `index.html`: Team Champions. Girls and boys champions for every year from 1977, with titles by school.
 - `results.html`: Results by Year. `results.html?year=2025` links to one year.
 - `champions.html`: Individual Champions, from place 1 in each year's top 21, back to the first year with results (2008). One line under each table covers the years before.
-- `venues.html`: Fastest by Venue. Each athlete's best time at each venue, top 25.
+- `venues.html`: Fastest by Venue. Each athlete's best time at each venue, with a list length set per venue.
 - `assets/css/site.css`: the one stylesheet.
 - `assets/img/schools/`: one logo per school, named by display name (`amador-valley.jpg`, `california.png`, ...). Pages show each at 20px in the same square, with `alt=""`, immediately before the school name. Metadata is stripped losslessly: JPEG with `jpegtran -copy none -optimize`; PNG by dropping the ancillary chunks (keeping `tRNS` if present), then checking the decoded pixels match the source.
 - `assets/js/csv.js`: the one CSV parser. `parseCSV(text)` returns one object per row, keyed by the header row, with values exactly as written.
 - `assets/js/common.js`: shared by every page. Loads CSVs and the lookup tables (schools, school logos, venues), builds elements, including each school's logo and name, and marks the current page in the header.
-- `assets/js/team-champions.js`, `results.js`, `individual-champions.js`, `venues.js`: one render file per page. Settings that may change (All-EBAL place ranges, venue order, list length) sit at the top of each.
+- `assets/js/team-champions.js`, `results.js`, `individual-champions.js`, `venues.js`: one render file per page. Settings that may change (All-EBAL place ranges, venue order, list lengths per venue) sit at the top of each.
 - `assets/data/`: the CSVs.
   - `ebal_xc_girls_team_results.csv`, `ebal_xc_boys_team_results.csv`: team standings at each year's championship meet.
   - `ebal_xc_girls_top21.csv`, `ebal_xc_boys_top21.csv`: the top 21 individuals at each meet.
