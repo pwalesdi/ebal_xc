@@ -1,6 +1,6 @@
 # EBAL cross country championship history
 
-A static site for the EBAL cross country championships, girls and boys. The home page covers the upcoming meet: details, race schedule and defending champions. The history pages cover team champions, results by year with team scores and the top 21 individuals, individual champions and the fastest times at each venue. A videos page links to race videos by year. It is plain HTML, CSS and JS, served as is.
+A static site for the EBAL cross country championships, girls and boys. The home page covers the upcoming meet: details, race schedule and defending champions. The history pages cover team champions, results by year with team scores and the top 21 individuals, individual champions and the fastest times at each venue. A videos page links to race videos by year, and a stories page summarizes notable moments from the cross country history of EBAL schools. It is plain HTML, CSS and JS, served as is.
 
 ## Rules
 
@@ -19,6 +19,7 @@ A static site for the EBAL cross country championships, girls and boys. The home
 - Phone first. Check at 390px and 1280px wide before committing.
 - No current-athlete roster anywhere. Historical results only.
 - Every photo needs a recorded photographer credit before it's published. Strip image metadata losslessly (jpegtran -copy none), never by re-encoding.
+- Stories are short original summaries that link to the source. Never copy article text or photos. A story about a year when the school wasn't in the EBAL says so in its context field.
 
 ## Layout
 
@@ -30,11 +31,12 @@ Every page sits at the repo root and shares the same header and footer.
 - `champions.html`: Individual Champions, from place 1 in each year's top 21, back to the first year with results (2008). One line under each table covers the years before.
 - `venues.html`: Fastest by Venue. Each athlete's best time at each venue, with a list length set per venue. Each venue's section has its venue_id as an anchor (`venues.html#newhall`).
 - `videos.html`: Race Videos. Every video in videos.csv, grouped by year, newest first. Plain links to YouTube: no embedded players, nothing loaded from YouTube. The contact line gives the email address for sending videos.
+- `stories.html`: Stories. Notable moments from the cross country history of EBAL schools, from stories.csv, newest first: year, school with its logo, title, summary, the context line when there is one, and a link to the full story at its source. Text only, nothing from the source site. Stories never feed the champions tables, title counts or results.
 - `assets/css/site.css`: the one stylesheet.
 - `assets/img/schools/`: one logo per school, named by display name (`amador-valley.jpg`, `california.png`, ...). Pages show each at 20px in the same square, with `alt=""`, immediately before the school name. Metadata is stripped losslessly: JPEG with `jpegtran -copy none -optimize`; PNG by dropping the ancillary chunks (keeping `tRNS` if present), then checking the decoded pixels match the source.
 - `assets/js/csv.js`: the one CSV parser. `parseCSV(text)` returns one object per row, keyed by the header row, with values exactly as written.
 - `assets/js/common.js`: shared by every page. Loads CSVs and the lookup tables (schools, school logos, venues, no-meet years), builds elements, including each school's logo and name and the list of videos, and marks the current page in the header.
-- `assets/js/home.js`, `team-champions.js`, `results.js`, `individual-champions.js`, `venues.js`, `videos.js`: one render file per page. Settings that may change (the Varsity label rule, All-EBAL place ranges, venue order, list lengths per venue) sit at the top of each.
+- `assets/js/home.js`, `team-champions.js`, `results.js`, `individual-champions.js`, `venues.js`, `videos.js`, `stories.js`: one render file per page. Settings that may change (the Varsity label rule, All-EBAL place ranges, venue order, list lengths per venue) sit at the top of each.
 - `assets/data/`: the CSVs.
   - `ebal_xc_girls_team_results.csv`, `ebal_xc_boys_team_results.csv`: team standings at each year's championship meet.
   - `ebal_xc_girls_top21.csv`, `ebal_xc_boys_top21.csv`: the top 21 individuals at each meet.
@@ -46,6 +48,7 @@ Every page sits at the repo root and shares the same header and footer.
   - `upcoming_meet.csv`: `field,value`. The coming meet's title, date, location, venue_id (as in venues.csv), host (a school, shown through schools.csv with its logo), meet director, first race and note. Updated each year.
   - `upcoming_schedule.csv`: `race,time`. The coming meet's races, in order. A race whose name starts with "Varsity" gets a Varsity label.
   - `videos.csv`: `year,creator,creator_role,url`. Race videos, shown as written, each a YouTube link.
+  - `stories.csv`: `year,school,title,summary,context,source_name,source_url`. One row per story, shown as written. The school is shown through schools.csv with its logo. The summary is original text, never copied from the source. The context says when the school wasn't in the EBAL that year.
 - The coverage log (what was found for each year and gender, and the sources used and tried) is kept outside the repo.
 - `tools/`: check scripts.
   - `python3 tools/audit_data.py [path/to/ebal_xc_coverage_log.csv]` prints a read-only audit of the CSVs. Without the log's path, the parts that use the log are skipped.
