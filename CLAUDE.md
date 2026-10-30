@@ -12,7 +12,7 @@ A static site for the EBAL cross country championships, girls and boys. The home
 - Athlete names appear exactly as they are in the CSVs. School names are displayed through assets/data/schools.csv; never change a school name anywhere else. Never normalize, correct or merge a spelling. Never comment on a name variation in a file, a commit message or a README.
 - "Monta Vista" (Cupertino) and "Monte Vista" (Danville) are different schools.
 - Boys and girls never share a table, list or combined score.
-- Every meet reference carries day and date, e.g. "Saturday, November 8, 2025".
+- Every meet reference carries day and date, e.g. "Saturday, November 8, 2025". Exception: story summaries on stories.html, which describe a season rather than a single meet.
 - Fast marks are "fastest at this venue", "fastest on this course" or "fastest in meet history", never "record". Cross country courses aren't record-eligible.
 - This is a league site covering every EBAL school. Neutral site design: no school's colours anywhere in the site chrome. School logos appear beside school names, every school at the same size, none favoured.
 - Highlighting never relies on colour alone. Always add a text or label cue as well.
