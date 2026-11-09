@@ -25,7 +25,7 @@ A static site for the EBAL cross country championships, girls and boys. The home
 
 Every page sits at the repo root and shares the same header and footer.
 
-- `index.html`: Home. The coming championship meet from upcoming_meet.csv and upcoming_schedule.csv: details, race schedule and note. Then the defending champions from the latest year with results, the years the championship was held on the meet's course, and a map link.
+- `index.html`: Home, for this year's championship meet in upcoming_meet.csv. Its `status` field sets what shows. `upcoming`: the meet's details, the race schedule from upcoming_schedule.csv and the note, then the defending champions from the latest year with results. `complete`: "Final results" with the date, location and host, then that year's champions (each team with its score, each individual with their time; the year comes from the meet's date), with links to the full results and the venue's fastest lists. Either way, the years the championship was held on the meet's course and a map link follow.
 - `team-champions.html`: Team Champions. Girls and boys champions for every year from 1977, with titles by school.
 - `results.html`: Results by Year. `results.html?year=2025` links to one year. A year with videos in videos.csv lists them after its results.
 - `champions.html`: Individual Champions, from place 1 in each year's top 21, back to the first year with results (2008). One line under each table covers the years before.
@@ -45,8 +45,10 @@ Every page sits at the repo root and shares the same header and footer.
   - `school_logos.csv`: `display_name,athletic_net_id,logo_file`. One row per display name in schools.csv. Logos are matched by athletic.net ID, never by name. A blank `logo_file` means no logo, and the pages leave an empty space of the same size.
   - `venues.csv`: `source_venue,venue_id,venue_name`. Every venue string, with the venue it belongs to. A new venue string needs a row here.
   - `no_meet_years.csv`: `year,note`. Years with no championship, such as 2020 (COVID-19). These aren't missing data: where a page would show "Not yet found" for such a year, it shows the note instead. The year is left out of the "Not counted" lists under titles by school and gets its own line there. `results.html?year=2020` shows the note in place of "No results have been found". The year stays out of the year list.
-  - `upcoming_meet.csv`: `field,value`. The coming meet's title, date, location, venue_id (as in venues.csv), host (a school, shown through schools.csv with its logo), meet director, first race and note. Updated each year.
-  - `upcoming_schedule.csv`: `race,time`. The coming meet's races, in order. A race whose name starts with "Varsity" gets a Varsity label.
+  - `upcoming_meet.csv`: `field,value`. This year's meet: title, date, location, venue_id (as in venues.csv), host (a school, shown through schools.csv with its logo), meet director, first race, note and status (`upcoming` or `complete`).
+    - After the meet: add its rows to the four results files, add any new school or venue string to schools.csv or venues.csv, then set status to `complete`.
+    - To roll over to next year: set the new meet's title, date, location, venue_id, host, meet director, first race and note, replace the rows in upcoming_schedule.csv with its races, and set status to `upcoming`.
+  - `upcoming_schedule.csv`: `race,time`. This year's races, in order, shown while status is `upcoming`. A race whose name starts with "Varsity" gets a Varsity label.
   - `videos.csv`: `year,creator,creator_role,url`. Race videos, shown as written, each a YouTube link.
   - `stories.csv`: `year,school,title,summary,context,source_name,source_url`. One row per story, shown as written. The school is shown through schools.csv with its logo. The summary is original text, never copied from the source. The context says when the school wasn't in the EBAL that year.
 - The coverage log (what was found for each year and gender, and the sources used and tried) is kept outside the repo.

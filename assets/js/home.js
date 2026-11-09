@@ -1,7 +1,13 @@
-// Home (index.html). The coming championship meet, from upcoming_meet.csv and
+// Home (index.html). This year's championship meet, from upcoming_meet.csv and
 // upcoming_schedule.csv so it can be updated each year without touching the
-// page. Then the defending champions and the years the championship was held on
-// the same course, from the results data.
+// page. Before the meet: the schedule and the defending champions. After it: the
+// final results. Then the years the championship was held on the same course,
+// from the results data.
+
+// The status field in upcoming_meet.csv: "upcoming" before the meet, "complete"
+// once its results are in the data. Anything other than "complete" counts as
+// upcoming.
+const COMPLETE = "complete";
 
 // Races whose name starts with "Varsity" get a Varsity label in the schedule.
 // "Junior Varsity" races don't.
@@ -26,27 +32,47 @@ start(async () => {
     document.querySelector("[data-meet-title]").textContent = meet.title;
     document.title = `${meet.title} · ${document.title}`;
   }
+  const complete = meet.status === COMPLETE;
   const sections = [
-    meetFacts(meet),
-    schedule(data[SCHEDULE_FILE], meet.note),
-    defending(data, results),
+    complete ? el("p", { class: "subtitle" }, "Final results") : null,
+    meetFacts(meet, complete),
+    complete ? finalResults(meet, data) : [schedule(data[SCHEDULE_FILE], meet.note), defending(data, results)],
     onThisCourse(meet.venue_id, meet.location, results),
     mapLink(meet.location),
   ];
-  document.getElementById("home").append(...sections.filter(Boolean));
+  document.getElementById("home").append(...sections.flat().filter(Boolean));
 });
 
-// The meet's details, each with a label. A field left blank is left out.
-function meetFacts(meet) {
-  const facts = [
-    ["Date", meet.date],
-    ["First race", meet.first_race],
-    ["Location", meet.location],
-    ["Host", meet.host && schoolLabel(schoolName(meet.host))],
-    ["Meet director", meet.meet_director],
-  ];
+// The meet's details, each with a label. After the meet, only its date, location
+// and host. A field left blank is left out.
+function meetFacts(meet, complete) {
+  const host = meet.host && schoolLabel(schoolName(meet.host));
+  const facts = complete
+    ? [["Date", meet.date], ["Location", meet.location], ["Host", host]]
+    : [
+      ["Date", meet.date],
+      ["First race", meet.first_race],
+      ["Location", meet.location],
+      ["Host", host],
+      ["Meet director", meet.meet_director],
+    ];
   return el("dl", { class: "facts" }, facts.filter(([, value]) => value)
     .flatMap(([term, value]) => [el("dt", {}, term), el("dd", {}, value)]));
+}
+
+// After the meet: its champions, from the results for the year in the meet's
+// date, then links to the full results and the venue's fastest lists.
+function finalResults(meet, data) {
+  const year = Number(/\b\d{4}\b/.exec(meet.date ?? "")?.[0]);
+  if (!Number.isFinite(year)) return null;
+  const id = "champions";
+  return el("section", { "aria-labelledby": id },
+    el("h2", { id }, `${year} champions`),
+    el("div", { class: "pair" }, GENDERS.map((g) => championsFor(g, year, data, "champions", true))),
+    el("p", {},
+      el("a", { href: `results.html?year=${year}` }, `Full ${year} results`),
+      meet.venue_id ? [separator(), el("a", { href: `venues.html#${meet.venue_id}` },
+        `Fastest at ${venueNameById(meet.venue_id, meet.location)}, girls and boys`)] : null));
 }
 
 // The races in the order listed, each with its start time, then the note.
@@ -80,14 +106,15 @@ function defending(data, results) {
       distinctValues(rows, "meet_date") || "Date not recorded",
       venue ? [separator(), venue] : null,
       separator(), el("a", { href: `results.html?year=${year}` }, `${year} results`)),
-    el("div", { class: "pair" }, GENDERS.map((g) => defendingFor(g, year, data))));
+    el("div", { class: "pair" }, GENDERS.map((g) => championsFor(g, year, data, "defending", false))));
 }
 
-// The team champion is the first-place team in the team results, or the
-// league's champion list for a year without them, as on Team Champions. The
-// individual champion is place 1 in the top 21.
-function defendingFor(gender, year, data) {
-  const id = `defending-${gender.key}`;
+// One gender's champions in one year. The team champion is the first-place team
+// in the team results, or the league's champion list for a year without them, as
+// on Team Champions. The individual champion is place 1 in the top 21. With
+// scores, the team score follows, when it comes from the team results.
+function championsFor(gender, year, data, idPrefix, scores) {
+  const id = `${idPrefix}-${gender.key}`;
   const ofYear = (rows) => rows.filter((r) => Number(r.year) === year);
   const winners = ofYear(data[TEAM_FILE(gender)]).filter((r) => Number(r.team_place) === 1);
   const listed = ofYear(data[LIST_FILE(gender)]).filter((r) => r.school !== "");
@@ -100,6 +127,8 @@ function defendingFor(gender, year, data) {
       el("dt", {}, "Team champion"),
       teams.length ? teams.map((school) => el("dd", {}, schoolLabel(school))) : notFound(),
       teams.length > 1 ? el("dd", {}, el("span", { class: "label" }, "(shared)")) : null,
+      scores && winners.length ? [el("dt", {}, "Team score"),
+        ...winners.map((r) => el("dd", {}, r.team_score || "Not recorded"))] : null,
       el("dt", {}, "Individual champion"),
       individuals.length
         ? individuals.map((r) => el("dd", {}, r.athlete, schoolLabel(schoolName(r.school))))
@@ -114,7 +143,7 @@ function onThisCourse(venueId, location, results) {
   if (!venueId) return null;
   const years = [...new Set(results.filter((r) => venueOf(r.venue)?.id === venueId).map((r) => Number(r.year)))]
     .sort((a, b) => a - b);
-  const name = [...venuesBySource.values()].find((v) => v.id === venueId)?.name ?? location;
+  const name = venueNameById(venueId, location);
   const id = "course";
   return el("section", { "aria-labelledby": id },
     el("h2", { id }, "On this course"),
@@ -123,6 +152,11 @@ function onThisCourse(venueId, location, results) {
       el("ul", { class: "years" }, years.map((year) => el("li", {}, yearLink(year)))),
       el("p", {}, el("a", { href: `venues.html#${venueId}` }, "Fastest at this venue, girls and boys")),
     ] : el("p", { class: "missing" }, `No championship results at ${name} yet.`));
+}
+
+// The venue_name in venues.csv for a venue_id, or fallback if it has none.
+function venueNameById(venueId, fallback) {
+  return [...venuesBySource.values()].find((v) => v.id === venueId)?.name ?? fallback;
 }
 
 // A Google Maps search for the location with MAP_REGION added, commas dropped:

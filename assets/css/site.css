@@ -347,6 +347,13 @@ tr.group th {
 
 /* Home */
 
+/* After the meet, "Final results" under the meet's title. */
+.subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
 /* Labelled details: each label, with its value beside it. */
 .facts {
   display: grid;
